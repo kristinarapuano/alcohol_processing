@@ -17,7 +17,6 @@ mask = Brain_Data('http://neurovault.org/media/images/2099/Neurosynth%20Parcella
 mask_x = expand_mask(mask)
 
 sessions = ['ses-early', 'ses-late']
-#sub = sys.argv[1]
 
 # Setup script argument that takes as input a job array index
 parser = argparse.ArgumentParser(description='GLM script')
@@ -35,13 +34,18 @@ if not os.path.exists(sub_dir):
 
 for ses in sessions:
 
-    # smoothed (4mm FWHM); ran separately (afni not in container)
+    # smoothed (4mm FWHM)
     #fns = sorted(glob.glob(join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '*_preproc.nii.gz')))
     #masks = sorted(glob.glob(join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '*_brainmask.nii.gz')))
 
     #for fn,m in zip(fns,masks):
     #    call("3dBlurToFWHM -prefix {0}_4fwhm.nii.gz -input "
     #        " {1} -FWHM 4 -mask {2}".format(fn[:-7], fn, m), shell=True)
+    
+    # create subject-level wholebrain (wb) masks (inclusive of all voxels in run-wise masks) 
+    #for m in masks:
+    #   call("3dcalc -a m[0] -b m[1] -c m[2] -d m[3] -expr 'ispositive((a+b+c+d)-0)' "
+    #   " -prefix '{0}_brainmask.nii.gz').format(sub), shell=True)
 
     smoothed_fns = sorted(glob.glob(join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '*_4mm.nii.gz')))
     wb_m = join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '{0}_brainmask.nii.gz').format(sub)
