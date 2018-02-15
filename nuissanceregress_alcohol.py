@@ -48,23 +48,46 @@ for ses in sessions:
     #   " -prefix '{0}_brainmask.nii.gz').format(sub), shell=True)
 
     smoothed_fns = sorted(glob.glob(join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '*_4mm.nii.gz')))
-    wb_m = join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '{0}_brainmask.nii.gz').format(sub)
+    wb_mask = join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '{0}_brainmask.nii.gz').format(sub)
 
     alldat = Brain_Data()
     for fn in smoothed_fns:
         dat = Brain_Data(fn)
         alldat = alldat.append(dat)
+        
+    maskeddat = alldat.apply_mask(nib.load(wb_mask))
+    mn = np.mean(maskeddat, axis=0)
+    sd = np.std(maskeddat, axis=0)
+    tsnr = np.true_divide(mn, sd)
+    # Compute mean across voxels within each TR
+    global_mn = np.mean(maskeddat, axis=1)
+    global_sd = np.std(maskeddat, axis=1)
+    # Unmask data for plotting below
+    mn = unmask(mn, wb_mask)
+    sd = unmask(sd, wb_mask)
+    tsnr = unmask(tsnr, wb_mask)
 
+    # Identify global signal outliers
+    global_outliers = np.append(np.where(global_mn > np.mean(global_mn) + np.std(global_mn) * 3),
+                               np.where(global_mn < np.mean(global_mn) - np.std(global_mn) * 3))
+
+    # Identify frame difference outliers
+    frame_diff = np.mean(np.abs(np.diff(masked_data, axis=0)), axis=1)
+    frame_outliers = np.append(np.where(frame_diff > np.mean(frame_diff) + np.std(frame_diff) * 3),
+                              np.where(frame_diff < np.mean(frame_diff) - np.std(frame_diff) * 3))
+
+    fd_file_name = "fd_outliers.txt"
+    global_file_name = "global_outliers.txt"
+    np.savetxt(fd_file_name, frame_outliers)
+    np.savetxt(global_file_name, global_outliers)
+    
     rps = sorted(glob.glob(join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '*_confounds.tsv')))
 
     allrps = []
     for rp in rps:
         ra = pd.read_table(rp, skipinitialspace=True, usecols=
-                ['aCompCor0' + str(x) for x in range(0,6)] +
-                ['FramewiseDisplacement', 'X', 'Y', 'Z','RotX', 'RotY', 'RotZ'])
-
-        ra = ra.replace(to_replace="n/a", value=0.0)
-        ra = ra.convert_objects(convert_numeric=True)
+                #['aCompCor0' + str(x) for x in range(0,6)] +
+                ['X', 'Y', 'Z','RotX', 'RotY', 'RotZ'])
         allrps.append(ra)
 
     rpstack = pd.concat(allrps)
@@ -76,11 +99,12 @@ for ses in sessions:
     rpstack['LinearTrend'] = range(rpstack.shape[0])-np.mean(range(rpstack.shape[0])) # Add Linear Trend
     rpstack['QuadraticTrend'] = rpstack['LinearTrend']**2
     rpstack0 = rpstack.fillna(value=0) # fill "diff" NAs w/0 (first row)
-
-    wb_maskeddat = alldat.apply_mask(nib.load(wb_m))
-    wb_maskeddat.X = rpstack0 # Add to dat
-    wb_maskeddat_reg = wb_maskeddat.regress()
-    wb_maskeddat_reg['residual'].write(join(base_dir, 'derivatives',
+    # add lines for outliers
+    
+        
+    maskeddat.X = rpstack0 # Add to dat
+    maskeddat_reg = maskeddat.regress()
+    maskeddat_reg['residual'].write(join(base_dir, 'derivatives',
             'roi_cleaned', sub,'{0}_{1}_wholebrain_4mm_resid.nii.gz'.format(sub,ses)))
 
     for roi,m in enumerate(mask_x):
