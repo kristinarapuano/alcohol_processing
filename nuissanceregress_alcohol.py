@@ -98,11 +98,11 @@ for ses in sessions:
     rpstack['Intercept'] = 1 # Add Intercept
     rpstack['LinearTrend'] = range(rpstack.shape[0])-np.mean(range(rpstack.shape[0])) # Add Linear Trend
     rpstack['QuadraticTrend'] = rpstack['LinearTrend']**2
-    rpstack0 = rpstack.fillna(value=0) # fill "diff" NAs w/0 (first row)
-    # add lines for outliers
-    
+    rpstack = rpstack.fillna(value=0) # fill "diff" NAs w/0 (first row)
+    rpstack['FrameOutliers'] = frame_outliers
+    rpstack['GlobalOutliers'] = global_outliers    
         
-    maskeddat.X = rpstack0 # Add to dat
+    maskeddat.X = rpstack # Add to dat
     maskeddat_reg = maskeddat.regress()
     maskeddat_reg['residual'].write(join(base_dir, 'derivatives',
             'roi_cleaned', sub,'{0}_{1}_wholebrain_4mm_resid.nii.gz'.format(sub,ses)))
