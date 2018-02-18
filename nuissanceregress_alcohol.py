@@ -115,7 +115,7 @@ for ses in sessions:
 
     for roi,m in enumerate(mask_x):
         maskeddat = alldat.apply_mask(m)
-        maskeddat.X = rpstack0 # Add to dat
+        maskeddat.X = confound_regs # Add to dat
         maskeddat_reg = maskeddat.regress()
         pd.DataFrame(maskeddat_reg['residual'].data).to_csv(join(sub_dir,
                                                    '{0}_{1}_ROI{2}_resid.csv'.format(sub,ses,roi)),index=None)
