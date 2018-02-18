@@ -89,7 +89,7 @@ for ses in sessions:
     all_confounds = []
     for fn in confound_fns:
         confounds = pd.read_table(rp, skipinitialspace=True, usecols=
-                    ['aCompCor0' + str(x) for x in range(0,6)] +
+                    #['aCompCor0' + str(x) for x in range(0,6)] +
                     ['X', 'Y', 'Z','RotX', 'RotY', 'RotZ'])
         all_confounds.append(confounds)
 
