@@ -78,8 +78,8 @@ for ses in sessions:
     frame_outliers = np.append(np.where(frame_diff > np.mean(frame_diff) + np.std(frame_diff) * 3),
                               np.where(frame_diff < np.mean(frame_diff) - np.std(frame_diff) * 3))
 
-    fd_file_name = join(sub_dir, "-", ses", "_fd_outliers.txt")
-    global_file_name = join(sub_dir, "-", ses", "_global_outliers.txt")
+    fd_file_name = join(sub_dir, "-", ses, "_fd_outliers.txt")
+    global_file_name = join(sub_dir, "-", ses, "_global_outliers.txt")
     np.savetxt(fd_file_name, frame_outliers)
     np.savetxt(global_file_name, global_outliers)
     
