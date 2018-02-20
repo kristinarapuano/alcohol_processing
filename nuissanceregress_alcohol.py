@@ -41,8 +41,7 @@ for ses in sessions:
     #masks = sorted(glob.glob(join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '*_brainmask.nii.gz')))
 
     #for fn,m in zip(fns,masks):
-    #    call("3dBlurToFWHM -prefix {0}_4fwhm.nii.gz -input "
-    #        " {1} -FWHM 4 -mask {2}".format(fn[:-7], fn, m), shell=True)
+    #    call("3dmerge -1blur_fwhm 4.0 -doall -1fmask {0} -prefix {1}_4mm.nii.gz {2}".format(m, fn[:-7], fn), shell=True)
     
     # create subject-level wholebrain (wb) masks (inclusive of all voxels in run-wise masks) 
     #for m in masks:
