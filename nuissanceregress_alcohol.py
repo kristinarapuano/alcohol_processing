@@ -44,9 +44,8 @@ for ses in sessions:
     #    call("3dmerge -1blur_fwhm 4.0 -doall -1fmask {0} -prefix {1}_4mm.nii.gz {2}".format(m, fn[:-7], fn), shell=True)
     
     # create subject-level wholebrain (wb) masks (inclusive of all voxels in run-wise masks) 
-    #for m in masks:
-    #   call("3dcalc -a m[0] -b m[1] -c m[2] -d m[3] -expr 'ispositive((a+b+c+d)-0)' "
-    #   " -prefix '{0}_brainmask.nii.gz').format(sub), shell=True)
+    #call("3dcalc -a masks[0] -b masks[1] -c masks[2] -d masks[3] -expr 'ispositive((a+b+c+d)-0)' "
+    #   " -prefix {0}_brainmask.nii.gz".format(sub), shell=True)
 
     smoothed_fns = sorted(glob.glob(join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '*_4mm.nii.gz')))
     wb_mask = join(base_dir,'derivatives','fmriprep', sub, ses, 'func', '{0}_brainmask.nii.gz').format(sub)
