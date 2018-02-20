@@ -27,8 +27,7 @@ parser.add_argument('--array_id',required=True)
 args = parser.parse_args()
 
 # Use the index to grab the actual subject id we want to preprocess
-subjects = glob.glob(join(base_dir,'sub-*'))
-sub = os.path.split(subjects[int(args.array_id)])[-1]
+sub = 'sub-{:02d}'.format(int(args.array_id))
 
 sub_dir = join(join(base_dir, 'derivatives', 'roi_cleaned', sub))
 
@@ -79,8 +78,8 @@ for ses in sessions:
     frame_outliers = np.append(np.where(frame_diff > np.mean(frame_diff) + np.std(frame_diff) * 3),
                               np.where(frame_diff < np.mean(frame_diff) - np.std(frame_diff) * 3))
 
-    fd_file_name = join(sub_dir, "fd_outliers.txt")
-    global_file_name = join(sub_dir, "global_outliers.txt")
+    fd_file_name = join(sub_dir, "-", ses", "_fd_outliers.txt")
+    global_file_name = join(sub_dir, "-", ses", "_global_outliers.txt")
     np.savetxt(fd_file_name, frame_outliers)
     np.savetxt(global_file_name, global_outliers)
     
@@ -88,7 +87,7 @@ for ses in sessions:
 
     all_confounds = []
     for fn in confound_fns:
-        confounds = pd.read_table(rp, skipinitialspace=True, usecols=
+        confounds = pd.read_table(fn, skipinitialspace=True, usecols=
                     #['aCompCor0' + str(x) for x in range(0,6)] +
                     ['X', 'Y', 'Z','RotX', 'RotY', 'RotZ'])
         all_confounds.append(confounds)
